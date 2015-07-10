@@ -3,12 +3,11 @@ defmodule Cowboycors.Handler do
     {method, req} = :cowboy_req.method(req)
     {url, req} = :cowboy_req.binding(:url, req)
     {headers, req} = :cowboy_req.headers(req)
-    {ctype, req} = :cowboy_req.header(<<"Content-Type">>, req, <<"text/plain">>)
     {body, req} = :cowboy_req.qs(req)
-
+    {ctype, req} = :cowboy_req.header(<<"content-type">>, req, "text/plain")
     response = request(method, url, headers, ctype, body)
-    	         |> parse_response
-    {:ok, resp} = :cowboy_req.reply(200, response.headers, response.body, req)
+    	           |> parse_response
+    {:ok, resp} = :cowboy_req.reply(response.code, response.headers, response.body, req)
     {:ok, resp, opts}
   end 
 
@@ -22,9 +21,10 @@ defmodule Cowboycors.Handler do
         #:httpc.request(:get, {url, headers}, [], [])        
       "POST" ->
       	url = String.to_char_list(URI.decode(url))
+        ctype = String.to_char_list(ctype)
       	headers = headers
       			    |> Enum.map(fn({k,v}) -> {String.to_char_list(k), String.to_char_list(v)} end)
-      	:httpc.request(:post, {url, headers, 'application/x-www-form-urlencoded', body}, [], body_format: :binary)
+      	:httpc.request(:post, {url, headers, ctype, body}, [], body_format: :binary)
     end
   end
 
@@ -33,12 +33,14 @@ defmodule Cowboycors.Handler do
       {:ok, {{_httpvs, code, _status_phrase}, headers, body}} ->
       	%{
       		headers: headers ++ [{"Access-Control-Allow-Origin", "*"}],
-      		body: body
+      		body: body,
+          code: code
       	}
       {:error, reason} ->
       	%{
-      		headers: [],
-      		body: "error: "
+      		headers: [] ++ [{"Access-Control-Allow-Origin", "*"}],
+      		body: "An Error Occured" <> reason,
+          code: 400
       	}
     end
   end
