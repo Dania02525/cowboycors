@@ -9,10 +9,11 @@ $>iex -S mix
 ```
 
 Send requests to localhost:8000 like:
-localhost:8000/#somenoncorsurl
+localhost:8000/http%3A%2F%2Fwww.google.com
 
-*enter url like www.google.com, leave off http://
-*https:// will be prepended to url
+The url must be entered with http/https and must be escaped as above
+
+*GET requests aren't currently working with Authorization headers
 
 Headers + parameters will be forwarded. Response parameters will be returned along with response headers including 'Access-Control-Allow-Origin: *'
 

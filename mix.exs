@@ -14,7 +14,7 @@ defmodule Cowboycors.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger, :cowboy, :inets],
+    [applications: [:logger, :cowboy, :inets, :ssl],
      mod: {Cowboycors, []}]
   end
 

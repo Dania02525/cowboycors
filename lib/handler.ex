@@ -15,16 +15,16 @@ defmodule Cowboycors.Handler do
   def request(method, url, headers, ctype, body) do
     case method do  	
       "GET" -> 
-      	url = String.to_char_list("http://" <> url)
+      	url = String.to_char_list(URI.decode(url))
       	headers = headers
       			    |> Enum.map(fn({k,v}) -> {String.to_char_list(k), String.to_char_list(v)} end)
         :httpc.request(url)
         #:httpc.request(:get, {url, headers}, [], [])        
       "POST" ->
-      	url = String.to_char_list("http://" <> url)
+      	url = String.to_char_list(URI.decode(url))
       	headers = headers
       			    |> Enum.map(fn({k,v}) -> {String.to_char_list(k), String.to_char_list(v)} end)
-      	:httpc.request(:post, {url, headers, ctype, body}, [], body_format: :binary)
+      	:httpc.request(:post, {url, headers, 'application/x-www-form-urlencoded', body}, [], body_format: :binary)
     end
   end
 
@@ -38,7 +38,7 @@ defmodule Cowboycors.Handler do
       {:error, reason} ->
       	%{
       		headers: [],
-      		body: "error: " <> reason
+      		body: "error: "
       	}
     end
   end
