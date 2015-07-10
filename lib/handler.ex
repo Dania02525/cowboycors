@@ -1,15 +1,23 @@
 defmodule Cowboycors.Handler do
   def init({:tcp, :http}, req, opts) do
-    {method, req} = :cowboy_req.method(req)
-    {url, req} = :cowboy_req.binding(:url, req)
-    {headers, req} = :cowboy_req.headers(req)
-    {body, req} = :cowboy_req.qs(req)
-    {ctype, req} = :cowboy_req.header(<<"content-type">>, req, "text/plain")
-    response = request(method, url, headers, ctype, body)
-    	           |> parse_response
-    {:ok, resp} = :cowboy_req.reply(response.code, response.headers, response.body, req)
-    {:ok, resp, opts}
-  end 
+    
+    case :cowboy_req.method(req) do
+      {"OPTIONS", req} ->  
+        headers = [{"Access-Control-Allow-Methods", "POST, GET, OPTIONS"}, {"Access-Control-Allow-Headers", "Authorization"}]   
+        {:ok, resp} = :cowboy_req.reply(200, headers, "", req)
+        {:ok, resp, opts}
+      {method, req} ->
+        {url, req} = :cowboy_req.binding(:url, req)
+        {headers, req} = :cowboy_req.headers(req)
+        {body, req} = :cowboy_req.qs(req)
+        {ctype, req} = :cowboy_req.header(<<"content-type">>, req, "text/plain")
+
+        response = request(method, url, headers, ctype, body)
+                     |> parse_response
+        {:ok, resp} = :cowboy_req.reply(response.code, response.headers, response.body, req)
+        {:ok, resp, opts}
+    end
+  end
 
   def request(method, url, headers, ctype, body) do
     case method do  	
