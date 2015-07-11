@@ -3,7 +3,11 @@ defmodule Cowboycors.Handler do
     
     case :cowboy_req.method(req) do
       {"OPTIONS", req} ->  
-        headers = [{"Access-Control-Allow-Methods", "POST, GET, OPTIONS"}, {"Access-Control-Allow-Headers", "Authorization"}]   
+        headers = [
+          {"Access-Control-Allow-Methods", "POST, GET, OPTIONS"}, 
+          {"Access-Control-Allow-Headers", "Authorization"}, 
+          {"Access-Control-Allow-Origin", "*"},
+          {"Access-Control-Allow-Credentials", "true"}]   
         {:ok, resp} = :cowboy_req.reply(200, headers, "", req)
         {:ok, resp, opts}
       {method, req} ->
@@ -40,13 +44,21 @@ defmodule Cowboycors.Handler do
   	case httpc_response do
       {:ok, {{_httpvs, code, _status_phrase}, headers, body}} ->
       	%{
-      		headers: headers ++ [{"Access-Control-Allow-Origin", "*"}],
+      		headers: headers ++ 
+          [{"Access-Control-Allow-Methods", "POST, GET, OPTIONS"}, 
+          {"Access-Control-Allow-Headers", "Authorization"}, 
+          {"Access-Control-Allow-Origin", "*"},
+          {"Access-Control-Allow-Credentials", "true"}],
       		body: body,
           code: code
       	}
       {:error, reason} ->
       	%{
-      		headers: [] ++ [{"Access-Control-Allow-Origin", "*"}],
+      		headers: [] ++ 
+          [{"Access-Control-Allow-Methods", "POST, GET, OPTIONS"}, 
+          {"Access-Control-Allow-Headers", "Authorization"}, 
+          {"Access-Control-Allow-Origin", "*"},
+          {"Access-Control-Allow-Credentials", "true"}],
       		body: "An Error Occured" <> reason,
           code: 400
       	}
