@@ -3,10 +3,11 @@ defmodule Cowboycors.Handler do
     
     case :cowboy_req.method(req) do
       {"OPTIONS", req} ->  
+        {origin, req} = :cowboy_req.header(<<"origin">>, req, "*")
         headers = [
           {"Access-Control-Allow-Methods", "POST, GET, OPTIONS"}, 
           {"Access-Control-Allow-Headers", "Authorization"}, 
-          {"Access-Control-Allow-Origin", "*"},
+          {"Access-Control-Allow-Origin", origin},
           {"Access-Control-Allow-Credentials", "true"}]   
         {:ok, resp} = :cowboy_req.reply(200, headers, "", req)
         {:ok, resp, opts}
